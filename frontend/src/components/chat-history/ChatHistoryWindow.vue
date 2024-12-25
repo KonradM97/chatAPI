@@ -18,7 +18,7 @@
 
 <style scoped>
 .history-window{
-  width: 350px;
+  width: 19%;
   height: 100%;
   background: var(--bg-main);
   border-radius: var(--border-radius-lg);

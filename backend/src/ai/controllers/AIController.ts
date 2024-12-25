@@ -177,19 +177,31 @@ export class AIController {
   deleteSystemPrompt = async (req: Request, res: Response) => {
     try {
       const { uuid } = req.params;
+      console.log('Request params:', req.params);
+      console.log('Full request URL:', req.originalUrl);
+      console.log('Attempting to delete prompt with ID:', uuid);
 
-      if (!uuid) {
-        return res.status(400).json({ error: 'UUID is required' });
+      if (!uuid || uuid === 'undefined') {
+        console.error('Invalid UUID received:', uuid);
+        return res.status(400).json({ error: 'Valid ID is required' });
+      }
+
+      const existingPrompt = await this.systemPromptService.getPromptByUuid(uuid);
+      if (!existingPrompt) {
+        console.log('Prompt not found with ID:', uuid);
+        return res.status(404).json({ error: 'System prompt not found' });
       }
 
       const success = await this.systemPromptService.deletePrompt(uuid);
-      
+      console.log('Delete operation result:', success);
+
       if (!success) {
         return res.status(404).json({ error: 'System prompt not found' });
       }
 
       res.json({ message: 'System prompt deleted successfully' });
     } catch (error: any) {
+      console.error('Error deleting system prompt:', error);
       res.status(500).json({ 
         error: 'Error deleting system prompt',
         details: error.message 

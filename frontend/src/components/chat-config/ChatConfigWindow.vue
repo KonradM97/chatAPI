@@ -18,7 +18,7 @@
 
 <style scoped>
 .config-window{
-  width: 400px;
+  width: 21%;
   height: 100%;
   background: var(--bg-main);
   border-radius: var(--border-radius-lg);

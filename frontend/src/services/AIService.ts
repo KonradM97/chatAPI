@@ -11,7 +11,8 @@ export class AIService {
   private baseUrl: string;
 
   constructor() {
-    this.baseUrl = `${import.meta.env.VITE_API_URL}/api/ai`;
+    this.baseUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/ai`;
+    console.log('API URL:', this.baseUrl);
   }
 
   async sendChatMessage(request: ChatRequest): Promise<string> {
@@ -44,9 +45,10 @@ export class AIService {
     }
   }
 
-  async updateSystemPrompt(uuid: string, name: string, content: string): Promise<SystemPrompt> {
+  async updateSystemPrompt(id: string, name: string, content: string): Promise<SystemPrompt> {
     try {
-      const response = await axios.put(`${this.baseUrl}/prompts/${uuid}`, { name, content });
+      console.log('Sending update request:', { id, name, content });
+      const response = await axios.put(`${this.baseUrl}/prompts/${id}`, { name, content });
       return response.data;
     } catch (error: any) {
       console.error('Error updating system prompt:', error);
@@ -54,9 +56,11 @@ export class AIService {
     }
   }
 
-  async deleteSystemPrompt(uuid: string): Promise<void> {
+  async deleteSystemPrompt(id: string): Promise<void> {
     try {
-      await axios.delete(`${this.baseUrl}/prompts/${uuid}`);
+      console.log('Attempting to delete prompt with ID:', id);
+      const response = await axios.delete(`${this.baseUrl}/prompts/${id}`);
+      console.log('Delete response:', response.data);
     } catch (error: any) {
       console.error('Error deleting system prompt:', error);
       throw new Error(error.response?.data?.error || 'Failed to delete system prompt');

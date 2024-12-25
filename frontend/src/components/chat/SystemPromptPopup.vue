@@ -33,9 +33,9 @@
           <div class="prompts-container" data-simplebar>
             <div 
               v-for="prompt in systemPrompts" 
-              :key="prompt.uuid"
+              :key="prompt.id"
               class="prompt-item"
-              :class="{ 'active': selectedPrompt?.uuid === prompt.uuid }"
+              :class="{ 'active': selectedPrompt?.id === prompt.id }"
             >
               <div class="prompt-content" @click="selectPrompt(prompt)">
                 <div class="prompt-name">{{ prompt.name }}</div>
@@ -44,7 +44,7 @@
               </div>
               <button 
                 class="delete-button"
-                @click="handleDelete(prompt.uuid)"
+                @click="handleDelete(prompt.id)"
                 title="Usuń prompt"
               >
                 🗑️
@@ -165,11 +165,11 @@ const handleSave = async () => {
   }
 };
 
-const handleDelete = async (uuid: string) => {
+const handleDelete = async (id: string) => {
   try {
-    await aiService.deleteSystemPrompt(uuid);
-    systemPrompts.value = systemPrompts.value.filter(p => p.uuid !== uuid);
-    if (selectedPrompt.value?.uuid === uuid) {
+    await aiService.deleteSystemPrompt(id);
+    systemPrompts.value = systemPrompts.value.filter(p => p.id !== id);
+    if (selectedPrompt.value?.id === id) {
       selectedPrompt.value = null;
       localPrompt.value = DEFAULT_SYSTEM_PROMPT;
     }
@@ -185,33 +185,38 @@ const handleCancel = () => {
 };
 
 const handleUpdate = async () => {
+  if (!selectedPrompt.value) return;
+  
   try {
-    if (!selectedPrompt.value) return;
-
-    isLoading.value = true;
-    loadingText.value = 'Aktualizuję prompt...';
-
-    let name = await aiService.sendChatMessage({
-      systemPrompt: 'Pomagasz w tworzeniu nazwy dla promptu systemowego. Nazwa ta musi być krótka i związana z tematem promptu. Napisz nazwę w jednym zdaniu.',
-      userPrompt: `Oto system prompt: "${localPrompt.value}". Odpowiedz proszę tylko nazwą promptu.`
+    console.log('Updating prompt:', {
+      id: selectedPrompt.value.id,
+      name: selectedPrompt.value.name,
+      content: localPrompt.value
     });
 
-    const updatedPrompt = await aiService.updateSystemPrompt(
-      selectedPrompt.value.uuid,
-      name,
+    await aiService.updateSystemPrompt(
+      selectedPrompt.value.id,
+      selectedPrompt.value.name,
       localPrompt.value
     );
 
-    // Aktualizuj prompt w lokalnej liście
-    const index = systemPrompts.value.findIndex(p => p.uuid === updatedPrompt.uuid);
+    // Aktualizuj prompt w lokalnej tablicy
+    const index = systemPrompts.value.findIndex(p => p.id === selectedPrompt.value?.id);
     if (index !== -1) {
-      systemPrompts.value[index] = updatedPrompt;
+      systemPrompts.value[index] = {
+        ...selectedPrompt.value,
+        content: localPrompt.value
+      };
     }
 
-    selectedPrompt.value = updatedPrompt;
-    isEdited.value = false;
-    isLoading.value = false;
-    emit('save', updatedPrompt);
+    // Aktualizuj wybrany prompt
+    if (selectedPrompt.value) {
+      selectedPrompt.value = {
+        ...selectedPrompt.value,
+        content: localPrompt.value
+      };
+    }
+
     emit('update:isVisible', false);
   } catch (error) {
     console.error('Error updating system prompt:', error);

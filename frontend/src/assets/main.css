@@ -4,8 +4,8 @@
   /* Kolory podstawowe */
   --color-primary: #007bff;
   --color-primary-hover: #0056b3;
-  --color-secondary: #6c757d;
-  --color-secondary-hover: #5a6268;
+  --color-secondary: #f7f9fb;
+  --color-secondary-hover: #e6ecf4;
   --color-complementary: #e3f2fd;
   --color-complementary-hover: #bbdefb;
   
@@ -31,8 +31,9 @@
   
   /* Scrollbar */
   --scrollbar-thumb: #c1c1c1;
-  --scrollbar-track: #f1f1f1;
+  --scrollbar-track: var(--bg-secondary);
   --scrollbar-width: 8px;
+  --scrollbar-thumb-hover: #a1a1a1;
 }
 
 /* Tryb ciemny */
@@ -85,6 +86,7 @@ body{
 
 *::-webkit-scrollbar {
   width: var(--scrollbar-width);
+  border-color: var(--bg-main);
 }
 
 *::-webkit-scrollbar-track {

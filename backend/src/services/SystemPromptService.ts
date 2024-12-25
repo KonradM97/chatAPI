@@ -1,7 +1,7 @@
-import { v4 as uuidv4 } from 'uuid';
 import { SystemPrompt, type ISystemPrompt } from '../models/SystemPrompt';
+import { v4 as uuidv4 } from 'uuid';
 
-export class SystemPromptService{
+export class SystemPromptService {
   constructor() {
     this.initializeDatabase();
   }
@@ -20,24 +20,29 @@ export class SystemPromptService{
 
   async createPrompt(name: string, content: string): Promise<ISystemPrompt> {
     return await SystemPrompt.create({
-      uuid: uuidv4(),
+      id: uuidv4(),
       name,
       content
     });
   }
 
-  async updatePrompt(uuid: string, name: string, content: string): Promise<ISystemPrompt | null> {
-    const existingPrompt = await SystemPrompt.findByUuid(uuid);
+  async updatePrompt(id: string, name: string, content: string): Promise<ISystemPrompt | null> {
+    const existingPrompt = await SystemPrompt.findByUuid(id);
     if (!existingPrompt) return null;
 
-    return await SystemPrompt.update(uuid, { name, content });
+    return await SystemPrompt.update(id, { name, content });
   }
 
-  async getPromptByUuid(uuid: string): Promise<ISystemPrompt | null> {
-    return await SystemPrompt.findByUuid(uuid);
+  async getPromptByUuid(id: string): Promise<ISystemPrompt | null> {
+    return await SystemPrompt.findByUuid(id);
   }
 
-  async deletePrompt(uuid: string): Promise<boolean> {
-    return await SystemPrompt.delete(uuid);
+  async deletePrompt(id: string): Promise<boolean> {
+    if (!id || id === 'undefined') {
+        console.error('Invalid ID provided to SystemPromptService:', id);
+        return false;
+    }
+    console.log('SystemPromptService attempting to delete ID:', id);
+    return await SystemPrompt.delete(id);
   }
 } 
