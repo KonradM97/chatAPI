@@ -15,24 +15,31 @@ export class SystemPrompt{
   static async createTable(): Promise<void> {
     const client = await this.pool.connect();
     try {
-      console.log('CREATE DATABASE')
-      await client.query(`
-        DO $$ 
-        BEGIN
-            DROP TYPE IF EXISTS system_prompts CASCADE;
-        EXCEPTION
-            WHEN others THEN null;
-        END $$;
-      `);
+      try {
+        await client.query(`
+          DO $$ 
+          BEGIN
+              DROP TYPE IF EXISTS system_prompts CASCADE;
+          EXCEPTION
+              WHEN others THEN null;
+          END $$;
+        `);
+      } catch (error) {
+        console.error('Error dropping system_prompts type:', error);
+      }
 
-      await client.query(`
-        CREATE TABLE IF NOT EXISTS system_prompts (
-          id UUID PRIMARY KEY,
-          name VARCHAR(255) NOT NULL,
-          content TEXT NOT NULL,
-          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );
-      `);
+      try {
+        await client.query(`
+          CREATE TABLE IF NOT EXISTS system_prompts (
+            id UUID PRIMARY KEY,
+            name VARCHAR(255) NOT NULL,
+            content TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+          );
+        `);
+      } catch (error) {
+        console.error('Error creating system_prompts table:', error);
+      }
     } finally {
       client.release();
     }
@@ -45,6 +52,9 @@ export class SystemPrompt{
         'SELECT * FROM system_prompts ORDER BY created_at DESC'
       );
       return result.rows;
+    } catch (error) {
+      console.error('Error fetching all prompts:', error);
+      throw error;
     } finally {
       client.release();
     }

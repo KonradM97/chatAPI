@@ -1,10 +1,12 @@
 import axios from 'axios';
 import type { SystemPrompt } from '@/classes/chat/SystemPrompt';
+import { chatHistoryService } from './ChatHistoryService';
 
 interface ChatRequest {
   systemPrompt?: string;
   userPrompt: string;
   stream?: boolean;
+  conversationId?: string;
 }
 
 export class AIService {

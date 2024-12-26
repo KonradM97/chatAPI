@@ -2,6 +2,7 @@ import express from 'express';
 import { AbstractAIService } from './AbstractAIService';
 import { AIController } from '../controllers/AIController';
 import { SystemPromptService } from '../../services/SystemPromptService';
+import { ChatHistoryService } from '../../services/ChatHistoryService';
 
 export class AIRouter {
   private router: express.Router;
@@ -10,7 +11,8 @@ export class AIRouter {
   constructor(aiService: AbstractAIService) {
     this.router = express.Router();
     const systemPromptService = new SystemPromptService();
-    this.controller = new AIController(aiService, systemPromptService);
+    const chatHistoryService = new ChatHistoryService();
+    this.controller = new AIController(aiService, systemPromptService, chatHistoryService);
     this.initializeRoutes();
   }
 
@@ -25,6 +27,13 @@ export class AIRouter {
     this.router.post('/prompts', this.controller.createSystemPrompt);
     this.router.put('/prompts/:uuid', this.controller.updateSystemPrompt);
     this.router.delete('/prompts/:uuid', this.controller.deleteSystemPrompt);
+
+    // Nowe routy dla historii czatu
+    this.router.get('/conversations', this.controller.getAllConversations);
+    this.router.get('/conversations/:id', this.controller.getConversationById);
+    this.router.post('/conversations', this.controller.createConversation);
+    this.router.delete('/conversations/:id', this.controller.deleteConversation);
+    this.router.put('/conversations/:id/name', this.controller.updateConversationName);
   }
 
   getRouter() {

@@ -4,6 +4,7 @@ import cors from 'cors';
 import { Pool } from 'pg';
 import { AIApp } from './ai/AIApp';
 import { SystemPrompt } from './models/SystemPrompt';
+import { ChatHistory } from './models/ChatHistory';
 
 // Załaduj zmienne środowiskowe
 dotenv.config();
@@ -19,11 +20,22 @@ const pool = new Pool({
 // Inicjalizacja bazy danych
 async function initializeDatabase() {
   try {
-    await SystemPrompt.createTable();
-    console.log('Database tables initialized successfully');
+    try {
+      await SystemPrompt.createTable();
+    } catch (error) {
+      console.error('Error initializing SystemPrompt table:', error);
+    }
+    
+    try {
+      await ChatHistory.createTables();
+    } catch (error) {
+      console.error('Error initializing ChatHistory tables:', error);
+    }
+    
+    console.log('Database tables initialization completed');
   } catch (error) {
-    console.error('Error initializing database tables:', error);
-    process.exit(1);
+    console.error('Critical error during database initialization:', error);
+    // Nie kończymy procesu w przypadku błędu, pozwalamy aplikacji działać dalej
   }
 }
 
