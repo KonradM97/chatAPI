@@ -46,7 +46,13 @@ export class ChatHistoryService {
   }
 
   async updateConversation(id: string, data: { name?: string }): Promise<IConversation | null> {
-    return await ChatHistory.updateConversation(id, data);
+    try {
+        const conversation = await ChatHistory.updateConversation(id, data);
+        return conversation;
+    } catch (error) {
+        console.error('Error updating conversation:', error);
+        throw error;
+    }
   }
 
   async getConversationWithMessages(id: string): Promise<{ conversation: IConversation, messages: IMessage[] }> {

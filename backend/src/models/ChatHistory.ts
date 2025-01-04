@@ -167,7 +167,12 @@ export class ChatHistory {
       if (updateFields.length === 0) {
         return null;
       }
-
+      
+      console.log( `UPDATE conversations 
+        SET ${updateFields.join(', ')}, updated_at = CURRENT_TIMESTAMP 
+        WHERE id = $${valueIndex} 
+        RETURNING *`,
+       values)
       values.push(id);
       const result = await client.query<IConversation>(
         `UPDATE conversations 

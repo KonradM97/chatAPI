@@ -77,14 +77,17 @@ export class AIController {
       if (!name) {
         return res.status(400).json({ error: 'Nazwa jest wymagana' });
       }
-      const conversation = await this.chatHistoryService.getConversationById(id);
+
+      const conversation = await this.chatHistoryService.updateConversation(id, { name });
+      
       if (!conversation) {
         return res.status(404).json({ error: 'Nie znaleziono konwersacji' });
       }
-      // Zaktualizuj nazwę konwersacji
-      // TODO: Dodaj metodę updateConversation w ChatHistoryService
+
+      // Zwracamy zaktualizowaną konwersację
       res.json(conversation);
     } catch (error: any) {
+      console.error('Error updating conversation name:', error);
       res.status(500).json({
         error: 'Błąd podczas aktualizacji nazwy konwersacji',
         details: error.message
