@@ -4,6 +4,8 @@ import { Message } from '@/classes/chat/Message';
 import { UserMessage } from '@/classes/chat/UserMessage';
 import { AIMessage } from '@/classes/chat/AIMessage';
 import { SystemPrompt } from '@/classes/chat/SystemPrompt';
+import { SystemMessage } from '@/classes/chat/SystemMessage';
+import { aiService } from '@/services/AIService';
 
 interface IMessage {
   id: string;
@@ -34,10 +36,34 @@ export class ChatHistoryService {
       case 'assistant':
         return new AIMessage(message.id, message.content, timestamp, tempSystemPrompt);
       case 'system':
-        // Dla wiadomości systemowych też używamy AIMessage
-        return new AIMessage(message.id, message.content, timestamp, tempSystemPrompt);
+        return new SystemMessage(message.id, message.content, timestamp, tempSystemPrompt);
       default:
         throw new Error(`Nieznana rola wiadomości: ${message.role}`);
+    }
+  }
+
+  private async findOrCreateSystemPrompt(content: string): Promise<SystemPrompt> {
+    try {
+      // Pobierz wszystkie prompty
+      const prompts = await aiService.getSystemPrompts();
+      
+      // Sprawdź czy już istnieje prompt o takiej treści
+      const existingPrompt = prompts.find(p => p.content === content);
+      if (existingPrompt) {
+        return existingPrompt;
+      }
+
+      // Jeśli nie istnieje, stwórz nowy
+      const name = await aiService.sendChatMessage({
+        systemPrompt: 'Pomagasz w tworzeniu nazwy dla promptu systemowego. Nazwa ta musi być krótka i związana z tematem promptu. Napisz nazwę w jednym zdaniu.',
+        userPrompt: `Oto system prompt: "${content}". Odpowiedz proszę tylko nazwą promptu.`
+      });
+
+      return await aiService.createSystemPrompt(name, content);
+    } catch (error) {
+      console.error('Error finding or creating system prompt:', error);
+      // W przypadku błędu zwróć podstawowy prompt
+      return new SystemPrompt(content, 'Tymczasowy prompt');
     }
   }
 
@@ -51,12 +77,25 @@ export class ChatHistoryService {
     }
   }
 
-  async getConversationById(id: string): Promise<{ conversation: ChatHistory; messages: Message[] }> {
+  async getConversationById(id: string): Promise<{ conversation: ChatHistory; messages: Message[]; systemPrompt: SystemPrompt }> {
     try {
       const response = await axios.get(`${this.baseUrl}/conversations/${id}`);
+      const messages = response.data.messages.map((msg: IMessage) => this.mapMessageToClass(msg));
+      
+      // Znajdź ostatni system prompt w wiadomościach
+      const lastSystemMessage = [...messages]
+        .reverse()
+        .find(msg => msg instanceof SystemMessage) as SystemMessage | undefined;
+
+      // Jeśli znaleziono system prompt, użyj go lub stwórz nowy
+      const systemPrompt = lastSystemMessage 
+        ? await this.findOrCreateSystemPrompt(lastSystemMessage.text)
+        : new SystemPrompt('Jesteś pomocnym asystentem', 'Domyślny prompt');
+
       return {
         conversation: ChatHistory.fromJSON(response.data.conversation),
-        messages: response.data.messages.map((msg: IMessage) => this.mapMessageToClass(msg))
+        messages,
+        systemPrompt
       };
     } catch (error: any) {
       console.error('Error fetching conversation:', error);

@@ -24,4 +24,8 @@ export abstract class Message {
   }
 
   abstract isUser(): boolean;
+
+  isSystem(): boolean {
+    return false;
+  }
 }

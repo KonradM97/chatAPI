@@ -14,6 +14,10 @@
           v-if="message.isUser()" 
           :message="message" 
         />
+        <SystemMessage
+          v-else-if="message.isSystem()"
+          :message="message"
+        />
         <AIMessage 
           v-else 
           :message="message" 
@@ -37,13 +41,15 @@ import MessageInput from './MessageInput.vue';
 import SystemPromptPopup from './SystemPromptPopup.vue';
 import UserMessage from './UserMessage.vue';
 import AIMessage from './AIMessage.vue';
+import SystemMessage from './SystemMessage.vue';
 import { aiService } from '@/services/AIService';
 import { UserMessage as UserMessageClass } from '@/classes/chat/UserMessage';
 import { AIMessage as AIMessageClass } from '@/classes/chat/AIMessage';
 import { SystemPrompt } from '@/classes/chat/SystemPrompt';
 import type { Message } from '@/classes/chat/Message';
+import { SystemMessage as SystemMessageClass } from '@/classes/chat/SystemMessage';
 
-const messages = ref<(UserMessageClass | AIMessageClass)[]>([]);
+const messages = ref<(UserMessageClass | AIMessageClass | SystemMessageClass)[]>([]);
 const currentConversationId = ref<string | null>(null);
 const messageCounter = ref(0);
 const DEFAULT_SYSTEM_PROMPT = new SystemPrompt(
@@ -53,9 +59,12 @@ const DEFAULT_SYSTEM_PROMPT = new SystemPrompt(
 let systemPrompt = ref<SystemPrompt>(DEFAULT_SYSTEM_PROMPT);
 let showPromptPopup = ref(false);
 
-const loadMessages = (newMessages: Message[], conversationId: string) => {
-  messages.value = newMessages as (UserMessageClass | AIMessageClass)[];
+const loadMessages = async (newMessages: Message[], conversationId: string, systemPrompt?: SystemPrompt) => {
+  messages.value = newMessages as (UserMessageClass | AIMessageClass | SystemMessageClass)[];
   currentConversationId.value = conversationId;
+  if (systemPrompt) {
+    systemPrompt.value = systemPrompt;
+  }
 };
 
 const handleNewMessage = async (text: string) => {

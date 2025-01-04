@@ -29,7 +29,7 @@ import type { ChatHistory } from '@/classes/chat/ChatHistory';
 import type { Message } from '@/classes/chat/Message';
 
 const emit = defineEmits<{
-  (e: 'select-conversation', messages: Message[], conversationId: string): void;
+  (e: 'select-conversation', messages: Message[], conversationId: string, systemPrompt: SystemPrompt): void;
 }>();
 
 const conversations = ref<ChatHistory[]>([]);
@@ -46,8 +46,8 @@ const loadConversations = async () => {
 const handleConversationSelect = async (conversation: ChatHistory) => {
   try {
     activeConversationId.value = conversation.id;
-    const { messages } = await chatHistoryService.getConversationById(conversation.id);
-    emit('select-conversation', messages, conversation.id);
+    const { messages, systemPrompt } = await chatHistoryService.getConversationById(conversation.id);
+    emit('select-conversation', messages, conversation.id, systemPrompt);
   } catch (error) {
     console.error('Error loading conversation:', error);
   }

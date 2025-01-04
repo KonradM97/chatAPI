@@ -18,7 +18,7 @@
       </div>
     </div>
     <button class="edit-button" @click.stop="startEditing">
-      <i class="fas fa-pencil-alt"></i>
+      <i class="fas fa-pen"></i>
     </button>
   </div>
 </template>
