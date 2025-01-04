@@ -32,8 +32,15 @@ services:
       - DATABASE_URL=${DATABASE_URL}
       - NODE_ENV=development
       - DEBUG=express:*
+      - FORCE_COLOR=1
+      - NODE_OPTIONS=--no-warnings
     env_file:
       - .env
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   db:
     image: postgres:latest

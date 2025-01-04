@@ -17,6 +17,19 @@ const pool = new Pool({
   connectionString: process.env.DATABASE_URL
 });
 
+// Na początku pliku
+process.stdout.isTTY = true;  // Wymusza kolorowe logi
+console.log = console.log.bind(console);  // Zapobiega buforowaniu
+
+// Opcjonalnie możesz też dodać
+process.on('uncaughtException', (err) => {
+    console.error('Uncaught Exception:', err);
+});
+
+process.on('unhandledRejection', (err) => {
+    console.error('Unhandled Rejection:', err);
+});
+
 // Inicjalizacja bazy danych
 async function initializeDatabase() {
   try {
