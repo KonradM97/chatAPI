@@ -17,9 +17,14 @@
         {{ conversation.getFormattedCreatedAt() }}
       </div>
     </div>
-    <button class="edit-button" @click.stop="startEditing">
-      <i class="fas fa-pen"></i>
-    </button>
+    <div class="buttons">
+      <button class="edit-button" @click.stop="startEditing">
+        <i class="fas fa-pen"></i>
+      </button>
+      <button class="delete-button" title="Delete" @click.stop="handleDelete">
+        <i class="fas fa-trash"></i>
+      </button>
+    </div>
   </div>
 </template>
 
@@ -35,6 +40,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'select', conversation: ChatHistory): void;
+  (e: 'delete', conversation: ChatHistory): void;
 }>();
 
 const isEditing = ref(false);
@@ -66,6 +72,15 @@ const saveName = async () => {
     }
   }
   isEditing.value = false;
+};
+
+const handleDelete = async () => {
+  try {
+    await chatHistoryService.deleteConversation(props.conversation.id);
+    emit('delete', props.conversation);
+  } catch (error) {
+    console.error('Error deleting conversation:', error);
+  }
 };
 </script>
 
@@ -140,5 +155,34 @@ const saveName = async () => {
 .name-input:focus {
   outline: none;
   border-color: var(--primary-color);
+}
+
+.buttons {
+  display: flex;
+  gap: 8px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.chat-conversation:hover .buttons {
+  opacity: 1;
+}
+
+.edit-button,
+.delete-button {
+  padding: 6px;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.edit-button:hover {
+  color: var(--color-primary);
+}
+
+.delete-button:hover {
+  color: var(--color-error);
 }
 </style> 

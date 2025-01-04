@@ -44,25 +44,19 @@ export class ChatHistoryService {
 
   private async findOrCreateSystemPrompt(content: string): Promise<SystemPrompt> {
     try {
-      // Pobierz wszystkie prompty
       const prompts = await aiService.getSystemPrompts();
-      
-      // Sprawdź czy już istnieje prompt o takiej treści
       const existingPrompt = prompts.find(p => p.content === content);
+      
       if (existingPrompt) {
+        await aiService.setSystemPrompt(existingPrompt);
         return existingPrompt;
       }
 
-      // Jeśli nie istnieje, stwórz nowy
-      const name = await aiService.sendChatMessage({
-        systemPrompt: 'Pomagasz w tworzeniu nazwy dla promptu systemowego. Nazwa ta musi być krótka i związana z tematem promptu. Napisz nazwę w jednym zdaniu.',
-        userPrompt: `Oto system prompt: "${content}". Odpowiedz proszę tylko nazwą promptu.`
-      });
-
-      return await aiService.createSystemPrompt(name, content);
+      const newPrompt = await aiService.createSystemPrompt('System Prompt', content);
+      await aiService.setSystemPrompt(newPrompt);
+      return newPrompt;
     } catch (error) {
       console.error('Error finding or creating system prompt:', error);
-      // W przypadku błędu zwróć podstawowy prompt
       return new SystemPrompt(content, 'Tymczasowy prompt');
     }
   }
@@ -86,7 +80,6 @@ export class ChatHistoryService {
       const lastSystemMessage = [...messages]
         .reverse()
         .find(msg => msg instanceof SystemMessage) as SystemMessage | undefined;
-
       // Jeśli znaleziono system prompt, użyj go lub stwórz nowy
       const systemPrompt = lastSystemMessage 
         ? await this.findOrCreateSystemPrompt(lastSystemMessage.text)

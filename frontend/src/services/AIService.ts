@@ -121,6 +121,17 @@ export class AIService {
       );
     }
   }
+
+  async setSystemPrompt(prompt: SystemPrompt): Promise<void> {
+    try {
+      window.dispatchEvent(new CustomEvent('system-prompt-update', {
+        detail: prompt
+      }));
+    } catch (error) {
+      console.error('Error setting system prompt:', error);
+      throw error;
+    }
+  }
 }
 
 // Eksportujemy pojedynczą instancję

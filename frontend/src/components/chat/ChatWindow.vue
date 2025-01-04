@@ -36,7 +36,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import MessageInput from './MessageInput.vue';
 import SystemPromptPopup from './SystemPromptPopup.vue';
 import UserMessage from './UserMessage.vue';
@@ -59,11 +59,11 @@ const DEFAULT_SYSTEM_PROMPT = new SystemPrompt(
 let systemPrompt = ref<SystemPrompt>(DEFAULT_SYSTEM_PROMPT);
 let showPromptPopup = ref(false);
 
-const loadMessages = async (newMessages: Message[], conversationId: string, systemPrompt?: SystemPrompt) => {
+const loadMessages = async (newMessages: Message[], conversationId: string, newSystemPrompt?: SystemPrompt) => {
   messages.value = newMessages as (UserMessageClass | AIMessageClass | SystemMessageClass)[];
   currentConversationId.value = conversationId;
-  if (systemPrompt) {
-    systemPrompt.value = systemPrompt;
+  if (newSystemPrompt) {
+    systemPrompt.value = newSystemPrompt;
   }
 };
 
@@ -105,6 +105,18 @@ const handleNewMessage = async (text: string) => {
 const handleSystemPromptUpdate = (newPrompt: SystemPrompt) => {
   systemPrompt.value = newPrompt;
 };
+
+onMounted(() => {
+  window.addEventListener('system-prompt-update', ((event: CustomEvent) => {
+    systemPrompt.value = event.detail;
+  }) as EventListener);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('system-prompt-update', ((event: CustomEvent) => {
+    systemPrompt.value = event.detail;
+  }) as EventListener);
+});
 
 defineExpose({ loadMessages });
 </script>

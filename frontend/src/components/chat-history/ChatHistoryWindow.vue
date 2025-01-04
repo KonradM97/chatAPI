@@ -15,6 +15,7 @@
           :conversation="conversation"
           :is-active="activeConversationId === conversation.id"
           @select="handleConversationSelect"
+          @delete="handleConversationDelete"
         />
       </div>
     </div>
@@ -60,6 +61,13 @@ const createNewConversation = async () => {
     handleConversationSelect(newConversation); // Od razu wybierz nową konwersację
   } catch (error) {
     console.error('Error creating new conversation:', error);
+  }
+};
+
+const handleConversationDelete = (conversation: ChatHistory) => {
+  conversations.value = conversations.value.filter(c => c.id !== conversation.id);
+  if (activeConversationId.value === conversation.id) {
+    activeConversationId.value = null;
   }
 };
 

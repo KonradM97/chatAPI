@@ -132,23 +132,22 @@ const truncateText = (text: string, maxLength: number) => {
 
 const handleSave = async () => {
   isLoading.value = true;
-  loadingText.value = 'Tworzenie nowego promptu...';
+  loadingText.value = 'Sprawdzanie i zapisywanie promptu...';
   try {
-    const existingPrompt = systemPrompts.value.find(p => p.content === localPrompt.value);
+    // Sprawdź czy istnieje prompt o takiej samej treści
+    const existingPrompts = await aiService.getSystemPrompts();
+    const existingPrompt = existingPrompts.find(p => p.content === localPrompt.value);
+
     if (existingPrompt) {
+      // Jeśli istnieje, użyj go
       selectedPrompt.value = existingPrompt;
       emit('save', existingPrompt);
       emit('update:isVisible', false);
       return;
     }
 
-    if (selectedPrompt.value && selectedPrompt.value.content === localPrompt.value) {
-      emit('save', selectedPrompt.value);
-      emit('update:isVisible', false);
-      return;
-    }
-
-    let name = await aiService.sendChatMessage({
+    // Jeśli nie istnieje, stwórz nowy
+    const name = await aiService.sendChatMessage({
       systemPrompt: 'Pomagasz w tworzeniu nazwy dla promptu systemowego. Nazwa ta musi być krótka i związana z tematem promptu. Napisz nazwę w jednym zdaniu.',
       userPrompt: `Oto system prompt: "${localPrompt.value}". Odpowiedz proszę tylko nazwą promptu.`
     });
@@ -159,9 +158,9 @@ const handleSave = async () => {
     
     emit('save', prompt);
     emit('update:isVisible', false);
-    isLoading.value = false;
-  } catch (error) {
     console.error('Error saving system prompt:', error);
+  } finally {
+    isLoading.value = false;
   }
 };
 
