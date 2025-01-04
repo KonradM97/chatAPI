@@ -1,7 +1,7 @@
 <template>
   <div class="app-wrapper">
     <div class="windows-container">
-      <ChatHistoryWindow />
+      <ChatHistoryWindow @select-conversation="handleConversationSelect" />
       <div class="chat-window-wrapper">
         <slot></slot>
       </div>
@@ -11,8 +11,27 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue';
 import ChatHistoryWindow from './chat-history/ChatHistoryWindow.vue';
 import ChatConfigWindow from './chat-config/ChatConfigWindow.vue';
+import type { Message } from '@/classes/chat/Message';
+
+// Referencja do ChatWindow będzie przekazywana przez slot
+const chatWindow = ref<any>(null); // Możemy później dodać typowanie
+
+const handleConversationSelect = (messages: Message[], conversationId: string) => {
+  // Zakładając, że ChatWindow jest dostępny przez ref z komponentu nadrzędnego
+  if (chatWindow.value) {
+    chatWindow.value.loadMessages(messages, conversationId);
+  }
+};
+
+// Eksponujemy metodę setChatWindowRef dla komponentu nadrzędnego
+const setChatWindowRef = (ref: any) => {
+  chatWindow.value = ref;
+};
+
+defineExpose({ setChatWindowRef });
 </script>
 
 <style scoped>

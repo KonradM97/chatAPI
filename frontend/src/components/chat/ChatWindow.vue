@@ -41,15 +41,22 @@ import { aiService } from '@/services/AIService';
 import { UserMessage as UserMessageClass } from '@/classes/chat/UserMessage';
 import { AIMessage as AIMessageClass } from '@/classes/chat/AIMessage';
 import { SystemPrompt } from '@/classes/chat/SystemPrompt';
+import type { Message } from '@/classes/chat/Message';
 
-let messages = ref<(UserMessageClass | AIMessageClass)[]>([]);
-let messageCounter = ref(0);
+const messages = ref<(UserMessageClass | AIMessageClass)[]>([]);
+const currentConversationId = ref<string | null>(null);
+const messageCounter = ref(0);
 const DEFAULT_SYSTEM_PROMPT = new SystemPrompt(
   'Jesteś pomocnym asystentem',
   'Domyślny'
 );
 let systemPrompt = ref<SystemPrompt>(DEFAULT_SYSTEM_PROMPT);
 let showPromptPopup = ref(false);
+
+const loadMessages = (newMessages: Message[], conversationId: string) => {
+  messages.value = newMessages as (UserMessageClass | AIMessageClass)[];
+  currentConversationId.value = conversationId;
+};
 
 const handleNewMessage = async (text: string) => {
   try {
@@ -72,6 +79,7 @@ const handleNewMessage = async (text: string) => {
       {
         systemPrompt: systemPrompt.value.content,
         userPrompt: text,
+        conversationId: currentConversationId.value
       },
       (chunk) => {
         const aiMessage = messages.value.find(m => m.id === responseId);
@@ -88,6 +96,8 @@ const handleNewMessage = async (text: string) => {
 const handleSystemPromptUpdate = (newPrompt: SystemPrompt) => {
   systemPrompt.value = newPrompt;
 };
+
+defineExpose({ loadMessages });
 </script>
 
 <style scoped>

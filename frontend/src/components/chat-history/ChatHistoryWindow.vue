@@ -22,10 +22,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, defineEmits } from 'vue';
 import ChatConversation from './ChatConversation.vue';
 import { chatHistoryService } from '@/services/ChatHistoryService';
 import type { ChatHistory } from '@/classes/chat/ChatHistory';
+import type { Message } from '@/classes/chat/Message';
+
+const emit = defineEmits<{
+  (e: 'select-conversation', messages: Message[], conversationId: string): void;
+}>();
 
 const conversations = ref<ChatHistory[]>([]);
 const activeConversationId = ref<string | null>(null);
@@ -40,11 +45,9 @@ const loadConversations = async () => {
 
 const handleConversationSelect = async (conversation: ChatHistory) => {
   try {
-    debugger
     activeConversationId.value = conversation.id;
     const { messages } = await chatHistoryService.getConversationById(conversation.id);
-    // Tu możesz emitować event z wiadomościami do komponentu nadrzędnego
-    // lub użyć store'a do zarządzania stanem
+    emit('select-conversation', messages, conversation.id);
   } catch (error) {
     console.error('Error loading conversation:', error);
   }

@@ -3,18 +3,27 @@
     <button class="theme-toggle" @click="settingsStore.toggleTheme">
       {{ settingsStore.isDarkMode ? '☀️' : '🌙' }}
     </button>
-    <AppWrapper>
-      <ChatWindow />
+    <AppWrapper ref="appWrapper">
+      <ChatWindow ref="chatWindow" />
     </AppWrapper>
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted } from 'vue';
 import AppWrapper from './components/AppWrapper.vue';
 import ChatWindow from './components/chat/ChatWindow.vue';
 import { useSettingsStore } from './stores/settings';
 
 const settingsStore = useSettingsStore();
+const appWrapper = ref<InstanceType<typeof AppWrapper> | null>(null);
+const chatWindow = ref<InstanceType<typeof ChatWindow> | null>(null);
+
+onMounted(() => {
+  if (appWrapper.value && chatWindow.value) {
+    appWrapper.value.setChatWindowRef(chatWindow.value);
+  }
+});
 </script>
 
 <style>
