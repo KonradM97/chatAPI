@@ -19,10 +19,10 @@
     </div>
     <div class="buttons">
       <button class="edit-button" @click.stop="startEditing">
-        <i class="fas fa-pen"></i>
+        <img src="/pencil.svg" alt="Edit" />
       </button>
       <button class="delete-button" title="Delete" @click.stop="handleDelete">
-        <i class="fas fa-trash"></i>
+        <img src="/trash.svg" alt="Delete" />
       </button>
     </div>
   </div>
@@ -128,7 +128,7 @@ const handleDelete = async () => {
   padding: 6px;
   background: transparent;
   border: none;
-  color: var(--text-secondary);
+  color: var(--text-primary);
   cursor: pointer;
   opacity: 0;
   transition: opacity 0.2s ease;
@@ -184,5 +184,19 @@ const handleDelete = async () => {
 
 .delete-button:hover {
   color: var(--color-error);
+}
+
+.edit-button img,
+.delete-button img {
+  width: 16px;
+  height: 16px;
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+  color: var(--text-primary);
+}
+
+.edit-button:hover img,
+.delete-button:hover img {
+  opacity: 1;
 }
 </style> 
