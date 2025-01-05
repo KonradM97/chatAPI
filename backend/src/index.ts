@@ -3,6 +3,7 @@ import * as dotenv from 'dotenv';
 import cors from 'cors';
 import { Pool } from 'pg';
 import { AIApp } from './ai/AIApp';
+import { FileManagerApp } from './files/FileManagerApp';
 import { SystemPrompt } from './models/SystemPrompt';
 import { ChatHistory } from './models/ChatHistory';
 
@@ -63,7 +64,10 @@ app.use(cors({
 app.use(express.json());
 
 const aiApp = new AIApp();
+const fileManagerApp = new FileManagerApp();
+
 app.use('/api/ai', aiApp.getRouter());
+app.use('/api/files', fileManagerApp.getRouter());
 
 app.get('/', (req, res) => {
   res.json({ 

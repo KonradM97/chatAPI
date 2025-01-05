@@ -1,5 +1,7 @@
 {
   "dependencies": {
-    "@fortawesome/vue-fontawesome": "^3.0.8"
+    "@fortawesome/vue-fontawesome": "^3.0.8",
+    "@types/multer": "^1.4.12",
+    "multer": "^1.4.5-lts.1"
   }
 }

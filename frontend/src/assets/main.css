@@ -42,6 +42,7 @@
   --color-primary: #45a049;
   --color-primary-hover: #3d8b41;
   --color-secondary: #2c2c2c;
+  --color-secondary-t30: rgba(44, 44, 44, 0.3);
   --color-secondary-hover: #3c3c3c;
   --color-tertiary: #1a1a1a;
   --color-complementary: #007bff;
