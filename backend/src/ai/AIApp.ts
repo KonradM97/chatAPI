@@ -1,11 +1,13 @@
 import express from 'express';
-import { AIRouter } from './services/AIRouter';
+import { AIRouter } from './routers/AIRouter';
 import { OpenAIService } from './services/openAI/OpenAIService';
+import { AbstractAIService } from './services/AbstractAIService';
 import { OpenAITextModel }  from './services/openAI/OpenAIModels';
 
 export class AIApp {
   private app: express.Application;
   private aiRouter: AIRouter;
+  private aiService: AbstractAIService;
 
   constructor() {
     this.app = express();
@@ -16,7 +18,7 @@ export class AIApp {
     }
     
     // Inicjalizacja serwisu AI (na razie tylko OpenAI)
-    const aiService = new OpenAIService({
+    this.aiService = new OpenAIService({
       model: OpenAITextModel.GPT_4O,
       apiKey: apiKey,
       temperature: 0.7,
@@ -25,10 +27,14 @@ export class AIApp {
     });
 
     // Inicjalizacja routera z wybranym serwisem
-    this.aiRouter = new AIRouter(aiService);
+    this.aiRouter = new AIRouter(this.aiService);
   }
 
   getRouter() {
     return this.aiRouter.getRouter();
+  }
+
+  getService() {
+    return this.aiService;
   }
 }

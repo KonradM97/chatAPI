@@ -1,5 +1,5 @@
 import express from 'express';
-import { AbstractAIService } from './AbstractAIService';
+import { AbstractAIService } from '../services/AbstractAIService';
 import { AIController } from '../controllers/AIController';
 import { SystemPromptService } from '../../services/SystemPromptService';
 import { ChatHistoryService } from '../../services/ChatHistoryService';
